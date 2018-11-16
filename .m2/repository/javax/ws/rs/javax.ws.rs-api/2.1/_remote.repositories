@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Nov 15 15:33:22 UTC 2018
+javax.ws.rs-api-2.1.jar>Nexus=
+javax.ws.rs-api-2.1.pom>Nexus=
+javax.ws.rs-api-2.1.jar>central=
+javax.ws.rs-api-2.1.pom>central=

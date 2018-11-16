@@ -1,0 +1,1034 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-14T22:26:04Z
+    generation: 6
+    labels:
+      app: tasks-blue
+    name: tasks-blue
+    namespace: abi-tasks-prod
+    resourceVersion: "973502"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-blue
+    uid: 45fb00b8-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: tasks-blue
+      deploymentconfig: tasks-blue
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-blue
+          deploymentconfig: tasks-blue
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-blue
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config1
+    test: false
+    triggers: []
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-15T19:40:06Z
+      lastUpdateTime: 2018-11-15T19:40:09Z
+      message: replication controller "tasks-blue-2" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:50:58Z
+      lastUpdateTime: 2018-11-16T12:50:58Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: Manual
+      message: manual change
+    latestVersion: 2
+    observedGeneration: 6
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-14T22:30:03Z
+    generation: 7
+    labels:
+      app: tasks-green
+    name: tasks-green
+    namespace: abi-tasks-prod
+    resourceVersion: "973013"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-green
+    uid: d4d24811-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: tasks-green
+      deploymentconfig: tasks-green
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-green
+          deploymentconfig: tasks-green
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-green
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config1
+    test: false
+    triggers: []
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-15T19:02:01Z
+      lastUpdateTime: 2018-11-15T19:02:03Z
+      message: replication controller "tasks-green-3" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:50:44Z
+      lastUpdateTime: 2018-11-16T12:50:44Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: Manual
+      message: manual change
+    latestVersion: 3
+    observedGeneration: 7
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: 2018-11-14T22:26:04Z
+    creationTimestamp: 2018-11-14T22:26:04Z
+    generation: 2
+    name: tasks-blue
+    namespace: abi-tasks-prod
+    resourceVersion: "613895"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-tasks-prod/imagestreams/tasks-blue
+    uid: 45f96a86-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      generation: 2
+      importPolicy: {}
+      name: "0.0"
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-tasks-prod/tasks-blue
+    tags:
+    - conditions:
+      - generation: 2
+        lastTransitionTime: 2018-11-14T22:26:04Z
+        message: 'Internal error occurred: Get https://docker-registry.default.svc:5000/v2/:
+          x509: certificate signed by unknown authority'
+        reason: InternalError
+        status: "False"
+        type: ImportSuccess
+      items: null
+      tag: "0.0"
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: 2018-11-14T22:30:04Z
+    creationTimestamp: 2018-11-14T22:30:03Z
+    generation: 2
+    name: tasks-green
+    namespace: abi-tasks-prod
+    resourceVersion: "614784"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-tasks-prod/imagestreams/tasks-green
+    uid: d4cfa507-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      generation: 2
+      importPolicy: {}
+      name: "0.0"
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-tasks-prod/tasks-green
+    tags:
+    - conditions:
+      - generation: 2
+        lastTransitionTime: 2018-11-14T22:30:04Z
+        message: 'Internal error occurred: Get https://docker-registry.default.svc:5000/v2/:
+          x509: certificate signed by unknown authority'
+        reason: InternalError
+        status: "False"
+        type: ImportSuccess
+      items: null
+      tag: "0.0"
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: 2018-11-14T22:32:36Z
+    labels:
+      app: tasks-blue
+    name: tasks
+    namespace: abi-tasks-prod
+    resourceVersion: "833150"
+    selfLink: /apis/route.openshift.io/v1/namespaces/abi-tasks-prod/routes/tasks
+    uid: 2f7140fb-e85d-11e8-830d-16eaa0d97fe8
+  spec:
+    host: tasks-abi-tasks-prod.apps.bd2b.openshift.opentlc.com
+    port:
+      targetPort: 8080
+    to:
+      kind: Service
+      name: tasks-blue
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2018-11-14T22:32:36Z
+        status: "True"
+        type: Admitted
+      host: tasks-abi-tasks-prod.apps.bd2b.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu, memory request for
+        container tasks-blue; cpu, memory limit for container tasks-blue'
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: tasks-blue
+      openshift.io/deployment.name: tasks-blue-2
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-15T19:40:01Z
+    generateName: tasks-blue-2-
+    labels:
+      app: tasks-blue
+      deployment: tasks-blue-2
+      deploymentconfig: tasks-blue
+    name: tasks-blue-2-784k5
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: tasks-blue-2
+      uid: 3b98e382-e90e-11e8-976c-16eaa0d97fe8
+    resourceVersion: "973498"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/pods/tasks-blue-2-784k5
+    uid: 3e0106ae-e90e-11e8-976c-16eaa0d97fe8
+  spec:
+    containers:
+    - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      imagePullPolicy: IfNotPresent
+      name: tasks-blue
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1536Mi
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        runAsUser: 1002470000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /opt/eap/standalone/configuration/application-users.properties
+        name: jboss-config
+        subPath: application-users.properties
+      - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+        name: jboss-config1
+        subPath: application-roles.properties
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-mw649
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-f2mth
+    nodeName: node3.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1002470000
+      seLinuxOptions:
+        level: s0:c50,c10
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - configMap:
+        defaultMode: 420
+        name: tasks-blue-config
+      name: jboss-config
+    - configMap:
+        defaultMode: 420
+        name: tasks-blue-config
+      name: jboss-config1
+    - name: default-token-mw649
+      secret:
+        defaultMode: 420
+        secretName: default-token-mw649
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-15T19:40:01Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:49:23Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-15T19:40:01Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://74d6d6bad9e62b6c00d73c813a20a136b60c9b9fe149b4082eb434ccd50ab420
+      image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      imageID: docker-pullable://docker-registry.default.svc:5000/abi-tasks-dev/tasks@sha256:307e215f1975e0aa193e601601cb3fa90b430e3112e65d02e549b20bc99b2319
+      lastState:
+        terminated:
+          containerID: docker://808f01a37567052e9b6702e300482b0542a214df9df3e13a542d80d41dccae66
+          exitCode: 137
+          finishedAt: 2018-11-16T08:06:16Z
+          reason: Error
+          startedAt: 2018-11-15T19:40:05Z
+      name: tasks-blue
+      ready: true
+      restartCount: 1
+      state:
+        running:
+          startedAt: 2018-11-16T12:49:22Z
+    hostIP: 192.199.0.80
+    phase: Running
+    podIP: 10.1.12.210
+    qosClass: Burstable
+    startTime: 2018-11-15T19:40:01Z
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu, memory request for
+        container tasks-green; cpu, memory limit for container tasks-green'
+      openshift.io/deployment-config.latest-version: "3"
+      openshift.io/deployment-config.name: tasks-green
+      openshift.io/deployment.name: tasks-green-3
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-15T19:01:57Z
+    generateName: tasks-green-3-
+    labels:
+      app: tasks-green
+      deployment: tasks-green-3
+      deploymentconfig: tasks-green
+    name: tasks-green-3-72ljl
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: tasks-green-3
+      uid: ea282524-e908-11e8-976c-16eaa0d97fe8
+    resourceVersion: "973009"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/pods/tasks-green-3-72ljl
+    uid: ecad9bb0-e908-11e8-976c-16eaa0d97fe8
+  spec:
+    containers:
+    - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      imagePullPolicy: IfNotPresent
+      name: tasks-green
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1536Mi
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        runAsUser: 1002470000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /opt/eap/standalone/configuration/application-users.properties
+        name: jboss-config
+        subPath: application-users.properties
+      - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+        name: jboss-config1
+        subPath: application-roles.properties
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-mw649
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-f2mth
+    nodeName: node3.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1002470000
+      seLinuxOptions:
+        level: s0:c50,c10
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - configMap:
+        defaultMode: 420
+        name: tasks-green-config
+      name: jboss-config
+    - configMap:
+        defaultMode: 420
+        name: tasks-green-config
+      name: jboss-config1
+    - name: default-token-mw649
+      secret:
+        defaultMode: 420
+        secretName: default-token-mw649
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-15T19:01:57Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:49:22Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-15T19:01:57Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://fbbf3a4f6da04a45338a9098d3b9c12452ef091d9079f351dd42dda78bbf3c41
+      image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+      imageID: docker-pullable://docker-registry.default.svc:5000/abi-tasks-dev/tasks@sha256:307e215f1975e0aa193e601601cb3fa90b430e3112e65d02e549b20bc99b2319
+      lastState:
+        terminated:
+          containerID: docker://38c50b72694a207d512ee35550cb477aaf51150d4420595ca8e2715dd274d74e
+          exitCode: 137
+          finishedAt: 2018-11-16T08:06:16Z
+          reason: Error
+          startedAt: 2018-11-15T19:02:00Z
+      name: tasks-green
+      ready: true
+      restartCount: 1
+      state:
+        running:
+          startedAt: 2018-11-16T12:49:21Z
+    hostIP: 192.199.0.80
+    phase: Running
+    podIP: 10.1.12.208
+    qosClass: Burstable
+    startTime: 2018-11-15T19:01:57Z
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.completed-at: 2018-11-15 18:12:08 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-15 18:12:00 +0000 UTC
+      openshift.io/deployer-pod.name: tasks-blue-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: tasks-blue
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"tasks-blue","namespace":"abi-tasks-prod","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-blue","uid":"45fb00b8-e85c-11e8-830d-16eaa0d97fe8","resourceVersion":"807904","generation":5,"creationTimestamp":"2018-11-14T22:26:04Z","labels":{"app":"tasks-blue"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"tasks-blue","deploymentconfig":"tasks-blue"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"tasks-blue","deploymentconfig":"tasks-blue"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jboss-config","configMap":{"name":"tasks-blue-config","defaultMode":420}},{"name":"jboss-config1","configMap":{"name":"tasks-blue-config","defaultMode":420}}],"containers":[{"name":"tasks-blue","image":"docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0","resources":{},"volumeMounts":[{"name":"jboss-config","mountPath":"/opt/eap/standalone/configuration/application-users.properties","subPath":"application-users.properties"},{"name":"jboss-config1","mountPath":"/opt/eap/standalone/configuration/application-roles.properties","subPath":"application-roles.properties"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":4,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-14T22:26:04Z","lastTransitionTime":"2018-11-14T22:26:04Z","message":"Deployment config does not have minimum availability."}]}}
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/Tasks/26/
+    creationTimestamp: 2018-11-15T18:12:00Z
+    generation: 3
+    labels:
+      app: tasks-blue
+      openshift.io/deployment-config.name: tasks-blue
+    name: tasks-blue-1
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: tasks-blue
+      uid: 45fb00b8-e85c-11e8-830d-16eaa0d97fe8
+    resourceVersion: "827471"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/replicationcontrollers/tasks-blue-1
+    uid: f25fb309-e901-11e8-976c-16eaa0d97fe8
+  spec:
+    replicas: 0
+    selector:
+      app: tasks-blue
+      deployment: tasks-blue-1
+      deploymentconfig: tasks-blue
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: tasks-blue
+          openshift.io/deployment.name: tasks-blue-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-blue
+          deployment: tasks-blue-1
+          deploymentconfig: tasks-blue
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-blue
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config1
+  status:
+    observedGeneration: 3
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-15 19:40:08 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-15 19:39:57 +0000 UTC
+      openshift.io/deployer-pod.name: tasks-blue-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: tasks-blue
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"tasks-blue","namespace":"abi-tasks-prod","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-blue","uid":"45fb00b8-e85c-11e8-830d-16eaa0d97fe8","resourceVersion":"827401","generation":6,"creationTimestamp":"2018-11-14T22:26:04Z","labels":{"app":"tasks-blue"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"tasks-blue","deploymentconfig":"tasks-blue"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"tasks-blue","deploymentconfig":"tasks-blue"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jboss-config","configMap":{"name":"tasks-blue-config","defaultMode":420}},{"name":"jboss-config1","configMap":{"name":"tasks-blue-config","defaultMode":420}}],"containers":[{"name":"tasks-blue","image":"docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0","resources":{},"volumeMounts":[{"name":"jboss-config","mountPath":"/opt/eap/standalone/configuration/application-users.properties","subPath":"application-users.properties"},{"name":"jboss-config1","mountPath":"/opt/eap/standalone/configuration/application-roles.properties","subPath":"application-roles.properties"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":5,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-11-15T18:12:08Z","lastTransitionTime":"2018-11-15T18:12:08Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2018-11-15T18:12:09Z","lastTransitionTime":"2018-11-15T18:12:04Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"tasks-blue-1\" successfully rolled out"}],"readyReplicas":1}}
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/
+    creationTimestamp: 2018-11-15T19:39:57Z
+    generation: 2
+    labels:
+      app: tasks-blue
+      openshift.io/deployment-config.name: tasks-blue
+    name: tasks-blue-2
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: tasks-blue
+      uid: 45fb00b8-e85c-11e8-830d-16eaa0d97fe8
+    resourceVersion: "973500"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/replicationcontrollers/tasks-blue-2
+    uid: 3b98e382-e90e-11e8-976c-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      app: tasks-blue
+      deployment: tasks-blue-2
+      deploymentconfig: tasks-blue
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: tasks-blue
+          openshift.io/deployment.name: tasks-blue-2
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-blue
+          deployment: tasks-blue-2
+          deploymentconfig: tasks-blue
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-blue
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-blue-config
+          name: jboss-config1
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.completed-at: 2018-11-15 17:48:08 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-15 17:48:01 +0000 UTC
+      openshift.io/deployer-pod.name: tasks-green-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: tasks-green
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"tasks-green","namespace":"abi-tasks-prod","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-green","uid":"d4d24811-e85c-11e8-830d-16eaa0d97fe8","resourceVersion":"802770","generation":5,"creationTimestamp":"2018-11-14T22:30:03Z","labels":{"app":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"tasks-green","deploymentconfig":"tasks-green"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"tasks-green","deploymentconfig":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jboss-config","configMap":{"name":"tasks-green-config","defaultMode":420}},{"name":"jboss-config1","configMap":{"name":"tasks-green-config","defaultMode":420}}],"containers":[{"name":"tasks-green","image":"docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0","resources":{},"volumeMounts":[{"name":"jboss-config","mountPath":"/opt/eap/standalone/configuration/application-users.properties","subPath":"application-users.properties"},{"name":"jboss-config1","mountPath":"/opt/eap/standalone/configuration/application-roles.properties","subPath":"application-roles.properties"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":4,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-14T22:30:04Z","lastTransitionTime":"2018-11-14T22:30:04Z","message":"Deployment config does not have minimum availability."}]}}
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/Tasks/24/
+    creationTimestamp: 2018-11-15T17:48:01Z
+    generation: 3
+    labels:
+      app: tasks-green
+      openshift.io/deployment-config.name: tasks-green
+    name: tasks-green-1
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: tasks-green
+      uid: d4d24811-e85c-11e8-830d-16eaa0d97fe8
+    resourceVersion: "805666"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/replicationcontrollers/tasks-green-1
+    uid: 986f3693-e8fe-11e8-976c-16eaa0d97fe8
+  spec:
+    replicas: 0
+    selector:
+      app: tasks-green
+      deployment: tasks-green-1
+      deploymentconfig: tasks-green
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: tasks-green
+          openshift.io/deployment.name: tasks-green-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-green
+          deployment: tasks-green-1
+          deploymentconfig: tasks-green
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-green
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config1
+  status:
+    observedGeneration: 3
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.completed-at: 2018-11-15 18:00:08 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-15 17:59:57 +0000 UTC
+      openshift.io/deployer-pod.name: tasks-green-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: tasks-green
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"tasks-green","namespace":"abi-tasks-prod","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-green","uid":"d4d24811-e85c-11e8-830d-16eaa0d97fe8","resourceVersion":"805601","generation":6,"creationTimestamp":"2018-11-14T22:30:03Z","labels":{"app":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"tasks-green","deploymentconfig":"tasks-green"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"tasks-green","deploymentconfig":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jboss-config","configMap":{"name":"tasks-green-config","defaultMode":420}},{"name":"jboss-config1","configMap":{"name":"tasks-green-config","defaultMode":420}}],"containers":[{"name":"tasks-green","image":"docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0","resources":{},"volumeMounts":[{"name":"jboss-config","mountPath":"/opt/eap/standalone/configuration/application-users.properties","subPath":"application-users.properties"},{"name":"jboss-config1","mountPath":"/opt/eap/standalone/configuration/application-roles.properties","subPath":"application-roles.properties"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":5,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-11-15T17:48:08Z","lastTransitionTime":"2018-11-15T17:48:08Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2018-11-15T17:48:08Z","lastTransitionTime":"2018-11-15T17:48:04Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"tasks-green-1\" successfully rolled out"}],"readyReplicas":1}}
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/Tasks/25/
+    creationTimestamp: 2018-11-15T17:59:57Z
+    generation: 3
+    labels:
+      app: tasks-green
+      openshift.io/deployment-config.name: tasks-green
+    name: tasks-green-2
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: tasks-green
+      uid: d4d24811-e85c-11e8-830d-16eaa0d97fe8
+    resourceVersion: "819711"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/replicationcontrollers/tasks-green-2
+    uid: 4341bb07-e900-11e8-976c-16eaa0d97fe8
+  spec:
+    replicas: 0
+    selector:
+      app: tasks-green
+      deployment: tasks-green-2
+      deploymentconfig: tasks-green
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: tasks-green
+          openshift.io/deployment.name: tasks-green-2
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-green
+          deployment: tasks-green-2
+          deploymentconfig: tasks-green
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-green
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config1
+  status:
+    observedGeneration: 3
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-15 19:02:03 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-15 19:01:53 +0000 UTC
+      openshift.io/deployer-pod.name: tasks-green-3-deploy
+      openshift.io/deployment-config.latest-version: "3"
+      openshift.io/deployment-config.name: tasks-green
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"tasks-green","namespace":"abi-tasks-prod","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-tasks-prod/deploymentconfigs/tasks-green","uid":"d4d24811-e85c-11e8-830d-16eaa0d97fe8","resourceVersion":"819647","generation":7,"creationTimestamp":"2018-11-14T22:30:03Z","labels":{"app":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"tasks-green","deploymentconfig":"tasks-green"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"tasks-green","deploymentconfig":"tasks-green"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jboss-config","configMap":{"name":"tasks-green-config","defaultMode":420}},{"name":"jboss-config1","configMap":{"name":"tasks-green-config","defaultMode":420}}],"containers":[{"name":"tasks-green","image":"docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0","resources":{},"volumeMounts":[{"name":"jboss-config","mountPath":"/opt/eap/standalone/configuration/application-users.properties","subPath":"application-users.properties"},{"name":"jboss-config1","mountPath":"/opt/eap/standalone/configuration/application-roles.properties","subPath":"application-roles.properties"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":3,"observedGeneration":6,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-11-15T17:48:08Z","lastTransitionTime":"2018-11-15T17:48:08Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2018-11-15T18:00:09Z","lastTransitionTime":"2018-11-15T18:00:06Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"tasks-green-2\" successfully rolled out"}],"readyReplicas":1}}
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/Tasks/27/
+    creationTimestamp: 2018-11-15T19:01:53Z
+    generation: 2
+    labels:
+      app: tasks-green
+      openshift.io/deployment-config.name: tasks-green
+    name: tasks-green-3
+    namespace: abi-tasks-prod
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: tasks-green
+      uid: d4d24811-e85c-11e8-830d-16eaa0d97fe8
+    resourceVersion: "973011"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/replicationcontrollers/tasks-green-3
+    uid: ea282524-e908-11e8-976c-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      app: tasks-green
+      deployment: tasks-green-3
+      deploymentconfig: tasks-green
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "3"
+          openshift.io/deployment-config.name: tasks-green
+          openshift.io/deployment.name: tasks-green-3
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: tasks-green
+          deployment: tasks-green-3
+          deploymentconfig: tasks-green
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+          imagePullPolicy: IfNotPresent
+          name: tasks-green
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/eap/standalone/configuration/application-users.properties
+            name: jboss-config
+            subPath: application-users.properties
+          - mountPath: /opt/eap/standalone/configuration/application-roles.properties
+            name: jboss-config1
+            subPath: application-roles.properties
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config
+        - configMap:
+            defaultMode: 420
+            name: tasks-green-config
+          name: jboss-config1
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: 2018-11-14T22:27:44Z
+    labels:
+      app: tasks-blue
+    name: tasks-blue
+    namespace: abi-tasks-prod
+    resourceVersion: "614227"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/services/tasks-blue
+    uid: 8167ec89-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.134.236
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: tasks-blue
+      deploymentconfig: tasks-blue
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: 2018-11-14T22:30:49Z
+    labels:
+      app: tasks-green
+    name: tasks-green
+    namespace: abi-tasks-prod
+    resourceVersion: "614930"
+    selfLink: /api/v1/namespaces/abi-tasks-prod/services/tasks-green
+    uid: f036b5c6-e85c-11e8-830d-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.127.9
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: tasks-green
+      deploymentconfig: tasks-green
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

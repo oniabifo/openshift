@@ -1,0 +1,929 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-13T19:03:02Z
+    generation: 3
+    labels:
+      app: gogs
+    name: gogs
+    namespace: abi-gogs
+    resourceVersion: "973234"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-gogs/deploymentconfigs/gogs
+    uid: beacfac8-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: gogs
+      deploymentconfig: gogs
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: gogs
+          deploymentconfig: gogs
+      spec:
+        containers:
+        - image: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+          imagePullPolicy: IfNotPresent
+          name: gogs
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: gogs-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: gogs-volume-1
+          persistentVolumeClaim:
+            claimName: gogs-data
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - gogs
+        from:
+          kind: ImageStreamTag
+          name: gogs:11.34
+          namespace: abi-gogs
+        lastTriggeredImage: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+      type: ImageChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-13T19:05:18Z
+      lastUpdateTime: 2018-11-13T19:05:21Z
+      message: replication controller "gogs-2" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:50:50Z
+      lastUpdateTime: 2018-11-16T12:50:50Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 2
+    observedGeneration: 3
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      template.alpha.openshift.io/wait-for-ready: "true"
+    creationTimestamp: 2018-11-13T19:02:54Z
+    generation: 2
+    labels:
+      app: postgresql_gogs
+      template: postgresql-persistent-template
+    name: postgresql
+    namespace: abi-gogs
+    resourceVersion: "973963"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-gogs/deploymentconfigs/postgresql
+    uid: ba1fe849-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      name: postgresql
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: postgresql_gogs
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: database-name
+                name: postgresql
+          image: docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+              - --live
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:9.6
+          namespace: openshift
+        lastTriggeredImage: docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-13T19:02:59Z
+      lastUpdateTime: 2018-11-13T19:03:25Z
+      message: replication controller "postgresql-1" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:51:12Z
+      lastUpdateTime: 2018-11-16T12:51:12Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/image.dockerRepositoryCheck: 2018-11-13T19:03:02Z
+    creationTimestamp: 2018-11-13T19:03:02Z
+    generation: 2
+    labels:
+      app: gogs
+    name: gogs
+    namespace: abi-gogs
+    resourceVersion: "340487"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-gogs/imagestreams/gogs
+    uid: beab53b6-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: wkulhanek/gogs:11.34
+      from:
+        kind: DockerImage
+        name: wkulhanek/gogs:11.34
+      generation: 2
+      importPolicy: {}
+      name: "11.34"
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-gogs/gogs
+    tags:
+    - items:
+      - created: 2018-11-13T19:03:02Z
+        dockerImageReference: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+        generation: 2
+        image: sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+      tag: "11.34"
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: 2018-11-13T19:05:04Z
+    labels:
+      app: gogs
+    name: gogs
+    namespace: abi-gogs
+    resourceVersion: "341134"
+    selfLink: /apis/route.openshift.io/v1/namespaces/abi-gogs/routes/gogs
+    uid: 0714f6f2-e777-11e8-8cf3-16eaa0d97fe8
+  spec:
+    host: gogs-abi-gogs.apps.bd2b.openshift.opentlc.com
+    port:
+      targetPort: 3000-tcp
+    to:
+      kind: Service
+      name: gogs
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2018-11-13T19:05:04Z
+        status: "True"
+        type: Admitted
+      host: gogs-abi-gogs.apps.bd2b.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu, memory request for
+        container gogs; cpu, memory limit for container gogs'
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: gogs
+      openshift.io/deployment.name: gogs-2
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-13T19:05:01Z
+    generateName: gogs-2-
+    labels:
+      app: gogs
+      deployment: gogs-2
+      deploymentconfig: gogs
+    name: gogs-2-5xsbk
+    namespace: abi-gogs
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: gogs-2
+      uid: 034124cb-e777-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "973224"
+    selfLink: /api/v1/namespaces/abi-gogs/pods/gogs-2-5xsbk
+    uid: 05b77ccd-e777-11e8-8cf3-16eaa0d97fe8
+  spec:
+    containers:
+    - image: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+      imagePullPolicy: IfNotPresent
+      name: gogs
+      ports:
+      - containerPort: 3000
+        protocol: TCP
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1536Mi
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        runAsUser: 1001810000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /data
+        name: gogs-volume-1
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-lwt5z
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-f2vwj
+    nodeName: node5.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1001810000
+      seLinuxOptions:
+        level: s0:c43,c2
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - name: gogs-volume-1
+      persistentVolumeClaim:
+        claimName: gogs-data
+    - name: default-token-lwt5z
+      secret:
+        defaultMode: 420
+        secretName: default-token-lwt5z
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T19:05:01Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:49:29Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T19:05:01Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://e1b3dee928683814a954c8f098a4d76f2a68fb283575bb12b63d580431592234
+      image: sha256:353b6ec5a3357b6fe000b7a9e98fc53df180b9f8e9b4ceb493081757599c0ed9
+      imageID: docker-pullable://docker.io/wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+      lastState:
+        terminated:
+          containerID: docker://3c0d1f5d1c495817386f638a3d754b412553f7d6a461155bb08b25d8117cda33
+          exitCode: 137
+          finishedAt: 2018-11-16T12:50:05Z
+          reason: Error
+          startedAt: 2018-11-16T12:49:21Z
+      name: gogs
+      ready: true
+      restartCount: 4
+      state:
+        running:
+          startedAt: 2018-11-16T12:50:14Z
+    hostIP: 192.199.0.234
+    phase: Running
+    podIP: 10.1.3.159
+    qosClass: Burstable
+    startTime: 2018-11-13T19:05:01Z
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu request for container
+        postgresql; cpu limit for container postgresql'
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.name: postgresql-1
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-13T19:02:59Z
+    generateName: postgresql-1-
+    labels:
+      app: postgresql_gogs
+      deployment: postgresql-1
+      deploymentconfig: postgresql
+      name: postgresql
+    name: postgresql-1-b2w72
+    namespace: abi-gogs
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: postgresql-1
+      uid: bb11b4d6-e776-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "973948"
+    selfLink: /api/v1/namespaces/abi-gogs/pods/postgresql-1-b2w72
+    uid: bcff0054-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    containers:
+    - env:
+      - name: POSTGRESQL_USER
+        valueFrom:
+          secretKeyRef:
+            key: database-user
+            name: postgresql
+      - name: POSTGRESQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: database-password
+            name: postgresql
+      - name: POSTGRESQL_DATABASE
+        valueFrom:
+          secretKeyRef:
+            key: database-name
+            name: postgresql
+      image: docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - /usr/libexec/check-container
+          - --live
+        failureThreshold: 3
+        initialDelaySeconds: 120
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 10
+      name: postgresql
+      ports:
+      - containerPort: 5432
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /usr/libexec/check-container
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 50m
+          memory: 512Mi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        privileged: false
+        runAsUser: 1001810000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/lib/pgsql/data
+        name: postgresql-data
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-lwt5z
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-f2vwj
+    nodeName: node4.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1001810000
+      seLinuxOptions:
+        level: s0:c43,c2
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - name: postgresql-data
+      persistentVolumeClaim:
+        claimName: postgresql
+    - name: default-token-lwt5z
+      secret:
+        defaultMode: 420
+        secretName: default-token-lwt5z
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T19:02:59Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:51:12Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T19:02:59Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://96855e4f0b6bc3430d8c744a9c902843e381f14c48445c2113dc53de54e26b27
+      image: sha256:a3c175f98d283674710a4011a51b3caf593ea36cc5787f12c99c97540a02e1ba
+      imageID: docker-pullable://docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d
+      lastState:
+        terminated:
+          containerID: docker://fb402c4cfd87f9505a804b9063a46c5cc1bbba552e1d5a225e970eebd9861911
+          exitCode: 2
+          finishedAt: 2018-11-16T12:50:14Z
+          reason: Error
+          startedAt: 2018-11-16T12:49:10Z
+      name: postgresql
+      ready: true
+      restartCount: 6
+      state:
+        running:
+          startedAt: 2018-11-16T12:50:41Z
+    hostIP: 192.199.0.202
+    phase: Running
+    podIP: 10.1.5.231
+    qosClass: Burstable
+    startTime: 2018-11-13T19:02:59Z
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.completed-at: 2018-11-13 19:03:21 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 19:03:03 +0000 UTC
+      openshift.io/deployer-pod.name: gogs-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: gogs
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"gogs","namespace":"abi-gogs","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-gogs/deploymentconfigs/gogs","uid":"beacfac8-e776-11e8-8cf3-16eaa0d97fe8","resourceVersion":"340489","generation":2,"creationTimestamp":"2018-11-13T19:03:02Z","labels":{"app":"gogs"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["gogs"],"from":{"kind":"ImageStreamTag","namespace":"abi-gogs","name":"gogs:11.34"},"lastTriggeredImage":"wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d"}}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"gogs","deploymentconfig":"gogs"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"gogs","deploymentconfig":"gogs"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"gogs-volume-1","emptyDir":{}}],"containers":[{"name":"gogs","image":"wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d","ports":[{"containerPort":3000,"protocol":"TCP"}],"resources":{},"volumeMounts":[{"name":"gogs-volume-1","mountPath":"/data"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-13T19:03:02Z","lastTransitionTime":"2018-11-13T19:03:02Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: 2018-11-13T19:03:03Z
+    generation: 3
+    labels:
+      app: gogs
+      openshift.io/deployment-config.name: gogs
+    name: gogs-1
+    namespace: abi-gogs
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: gogs
+      uid: beacfac8-e776-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "341224"
+    selfLink: /api/v1/namespaces/abi-gogs/replicationcontrollers/gogs-1
+    uid: bf06d82e-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 0
+    selector:
+      app: gogs
+      deployment: gogs-1
+      deploymentconfig: gogs
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: gogs
+          openshift.io/deployment.name: gogs-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: gogs
+          deployment: gogs-1
+          deploymentconfig: gogs
+      spec:
+        containers:
+        - image: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+          imagePullPolicy: IfNotPresent
+          name: gogs
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: gogs-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: gogs-volume-1
+  status:
+    observedGeneration: 3
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-13 19:05:20 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 19:04:57 +0000 UTC
+      openshift.io/deployer-pod.name: gogs-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: gogs
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"gogs","namespace":"abi-gogs","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-gogs/deploymentconfigs/gogs","uid":"beacfac8-e776-11e8-8cf3-16eaa0d97fe8","resourceVersion":"341083","generation":3,"creationTimestamp":"2018-11-13T19:03:02Z","labels":{"app":"gogs"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["gogs"],"from":{"kind":"ImageStreamTag","namespace":"abi-gogs","name":"gogs:11.34"},"lastTriggeredImage":"wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d"}}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"gogs","deploymentconfig":"gogs"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"gogs","deploymentconfig":"gogs"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"gogs-volume-1","persistentVolumeClaim":{"claimName":"gogs-data"}}],"containers":[{"name":"gogs","image":"wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d","ports":[{"containerPort":3000,"protocol":"TCP"}],"resources":{},"volumeMounts":[{"name":"gogs-volume-1","mountPath":"/data"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":2,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-11-13T19:03:21Z","lastTransitionTime":"2018-11-13T19:03:21Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2018-11-13T19:03:21Z","lastTransitionTime":"2018-11-13T19:03:06Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"gogs-1\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: 2018-11-13T19:04:57Z
+    generation: 2
+    labels:
+      app: gogs
+      openshift.io/deployment-config.name: gogs
+    name: gogs-2
+    namespace: abi-gogs
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: gogs
+      uid: beacfac8-e776-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "973230"
+    selfLink: /api/v1/namespaces/abi-gogs/replicationcontrollers/gogs-2
+    uid: 034124cb-e777-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      app: gogs
+      deployment: gogs-2
+      deploymentconfig: gogs
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: gogs
+          openshift.io/deployment.name: gogs-2
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: gogs
+          deployment: gogs-2
+          deploymentconfig: gogs
+      spec:
+        containers:
+        - image: wkulhanek/gogs@sha256:8bcc1cb6f938388b288ba1f9cfe1f2fb7f0cd2297c7b4cdd2d88c2224bb99f4d
+          imagePullPolicy: IfNotPresent
+          name: gogs
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: gogs-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: gogs-volume-1
+          persistentVolumeClaim:
+            claimName: gogs-data
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-13 19:03:24 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 19:02:56 +0000 UTC
+      openshift.io/deployer-pod.name: postgresql-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"postgresql","namespace":"abi-gogs","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-gogs/deploymentconfigs/postgresql","uid":"ba1fe849-e776-11e8-8cf3-16eaa0d97fe8","resourceVersion":"340361","generation":2,"creationTimestamp":"2018-11-13T19:02:54Z","labels":{"app":"postgresql_gogs","template":"postgresql-persistent-template"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp","template.alpha.openshift.io/wait-for-ready":"true"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.6"},"lastTriggeredImage":"docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d"}},{"type":"ConfigChange"}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"postgresql_gogs","name":"postgresql"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-name"}}}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"livenessProbe":{"exec":{"command":["/usr/libexec/check-container","--live"]},"initialDelaySeconds":120,"timeoutSeconds":10,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/usr/libexec/check-container"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-13T19:02:55Z","lastTransitionTime":"2018-11-13T19:02:55Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: 2018-11-13T19:02:56Z
+    generation: 2
+    labels:
+      app: postgresql_gogs
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-1
+    namespace: abi-gogs
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: postgresql
+      uid: ba1fe849-e776-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "973956"
+    selfLink: /api/v1/namespaces/abi-gogs/replicationcontrollers/postgresql-1
+    uid: bb11b4d6-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      deployment: postgresql-1
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: postgresql_gogs
+          deployment: postgresql-1
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: database-name
+                name: postgresql
+          image: docker-registry.default.svc:5000/openshift/postgresql@sha256:75b2d147b559487a42bf37e48867a09337e7f02ba91c8ff420be3c5a74faef9d
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+              - --live
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /usr/libexec/check-container
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-13T19:03:02Z
+    labels:
+      app: gogs
+    name: gogs
+    namespace: abi-gogs
+    resourceVersion: "340484"
+    selfLink: /api/v1/namespaces/abi-gogs/services/gogs
+    uid: beae73b7-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.54.105
+    ports:
+    - name: 3000-tcp
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+    selector:
+      app: gogs
+      deploymentconfig: gogs
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
+    creationTimestamp: 2018-11-13T19:02:54Z
+    labels:
+      app: postgresql_gogs
+      template: postgresql-persistent-template
+    name: postgresql
+    namespace: abi-gogs
+    resourceVersion: "340344"
+    selfLink: /api/v1/namespaces/abi-gogs/services/postgresql
+    uid: ba028bb6-e776-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.11.40
+    ports:
+    - name: postgresql
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      name: postgresql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

@@ -1,0 +1,1465 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      template.alpha.openshift.io/wait-for-ready: "true"
+    creationTimestamp: 2018-11-13T20:28:53Z
+    generation: 2
+    labels:
+      app: jenkins-persistent
+      template: jenkins-persistent-template
+    name: jenkins
+    namespace: abi-jenkins
+    resourceVersion: "976369"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-jenkins/deploymentconfigs/jenkins
+    uid: bcf3cd07-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      name: jenkins
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          name: jenkins
+      spec:
+        containers:
+        - env:
+          - name: OPENSHIFT_ENABLE_OAUTH
+            value: "true"
+          - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
+            value: "true"
+          - name: DISABLE_ADMINISTRATIVE_MONITORS
+            value: "true"
+          - name: KUBERNETES_MASTER
+            value: https://kubernetes.default:443
+          - name: KUBERNETES_TRUST_CERTIFICATES
+            value: "true"
+          - name: JENKINS_SERVICE_NAME
+            value: jenkins
+          - name: JNLP_SERVICE_NAME
+            value: jenkins-jnlp
+          - name: ENABLE_FATAL_ERROR_LOG_FILE
+            value: "false"
+          image: docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 420
+            periodSeconds: 360
+            successThreshold: 1
+            timeoutSeconds: 240
+          name: jenkins
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 240
+          resources:
+            limits:
+              memory: 2Gi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/jenkins
+            name: jenkins-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: jenkins
+        serviceAccountName: jenkins
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: jenkins-data
+          persistentVolumeClaim:
+            claimName: jenkins
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - jenkins
+        from:
+          kind: ImageStreamTag
+          name: jenkins:2
+          namespace: openshift
+        lastTriggeredImage: docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-13T20:28:57Z
+      lastUpdateTime: 2018-11-13T20:34:50Z
+      message: replication controller "jenkins-1" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:55:19Z
+      lastUpdateTime: 2018-11-16T12:55:19Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+    creationTimestamp: 2018-11-13T20:36:20Z
+    labels:
+      build: jenkins-agent-appdev
+    name: jenkins-agent-appdev
+    namespace: abi-jenkins
+    resourceVersion: "364893"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/buildconfigs/jenkins-agent-appdev
+    uid: c78ba8d0-e783-11e8-8cf3-16eaa0d97fe8
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: jenkins-agent-appdev:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      dockerfile: |-
+        FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11
+
+              USER root
+        RUN yum -y install skopeo && yum clean all
+
+              USER 1001
+      type: Dockerfile
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: jenkins-agent-maven-35-centos7:v3.11
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: kEtP7wNqj9fHyFgcTnmy
+      type: GitHub
+    - generic:
+        secret: 4euqo3PPEKD-OdKftxxt
+      type: Generic
+    - type: ConfigChange
+    - imageChange:
+        lastTriggeredImageID: docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723
+      type: ImageChange
+  status:
+    lastVersion: 1
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: 2018-11-15T19:20:02Z
+    name: tasks-pipeline
+    namespace: abi-jenkins
+    resourceVersion: "825765"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/buildconfigs/tasks-pipeline
+    uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs1-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggers: []
+  status:
+    lastVersion: 8
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: jenkins-agent-appdev
+      openshift.io/build.number: "1"
+      openshift.io/build.pod-name: jenkins-agent-appdev-1-build
+    creationTimestamp: 2018-11-13T20:36:21Z
+    labels:
+      build: jenkins-agent-appdev
+      buildconfig: jenkins-agent-appdev
+      openshift.io/build-config.name: jenkins-agent-appdev
+      openshift.io/build.start-policy: Serial
+    name: jenkins-agent-appdev-1
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: jenkins-agent-appdev
+      uid: c78ba8d0-e783-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "365640"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/jenkins-agent-appdev-1
+    uid: c7a39336-e783-11e8-8cf3-16eaa0d97fe8
+  spec:
+    nodeSelector: null
+    output:
+      pushSecret:
+        name: builder-dockercfg-5bbfb
+      to:
+        kind: ImageStreamTag
+        name: jenkins-agent-appdev:latest
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      dockerfile: |-
+        FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11
+
+              USER root
+        RUN yum -y install skopeo && yum clean all
+
+              USER 1001
+      type: Dockerfile
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723
+      type: Docker
+    triggeredBy:
+    - imageChangeBuild:
+        fromRef:
+          kind: ImageStreamTag
+          name: jenkins-agent-maven-35-centos7:v3.11
+        imageID: docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723
+      message: Image change
+  status:
+    completionTimestamp: 2018-11-13T20:38:08Z
+    config:
+      kind: BuildConfig
+      name: jenkins-agent-appdev
+      namespace: abi-jenkins
+    duration: 107000000000
+    output:
+      to:
+        imageDigest: sha256:372529c56a867246f83699c43d33e248fcce01394d94d3a526652e4b88dd040e
+    outputDockerImageReference: docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev:latest
+    phase: Complete
+    stages:
+    - durationMilliseconds: 29722
+      name: PullImages
+      startTime: 2018-11-13T20:36:26Z
+      steps:
+      - durationMilliseconds: 29722
+        name: PullBaseImage
+        startTime: 2018-11-13T20:36:26Z
+    - durationMilliseconds: 44236
+      name: Build
+      startTime: 2018-11-13T20:36:55Z
+      steps:
+      - durationMilliseconds: 44236
+        name: DockerBuild
+        startTime: 2018-11-13T20:36:55Z
+    - durationMilliseconds: 26918
+      name: PushImage
+      startTime: 2018-11-13T20:37:40Z
+      steps:
+      - durationMilliseconds: 26918
+        name: PushDockerImage
+        startTime: 2018-11-13T20:37:40Z
+    startTimestamp: 2018-11-13T20:36:21Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "1"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/1/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/1/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/1/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/1/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/1/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"1","name":"#1","status":"NOT_EXECUTED","startTimeMillis":1542309761744,"endTimeMillis":1542309763327,"durationMillis":1583,"queueDurationMillis":18,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:22:41Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-1
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "823752"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-1
+    uid: d2067303-e90b-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T19:22:43Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:22:41Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "2"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/3/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/3/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/3/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/3/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/3/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"3","name":"#3","status":"NOT_EXECUTED","startTimeMillis":1542309978217,"endTimeMillis":1542309978734,"durationMillis":517,"queueDurationMillis":62,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:24:14Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-2
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "824375"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-2
+    uid: 09bc35d9-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T19:26:18Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:26:18Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "3"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/2/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/2/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/2/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/2/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/2/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"2","name":"#2","status":"NOT_EXECUTED","startTimeMillis":1542309977727,"endTimeMillis":1542309978334,"durationMillis":607,"queueDurationMillis":10,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:26:17Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-3
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "824372"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-3
+    uid: 52eed406-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T19:26:18Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:26:17Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "4"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/5/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/5/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/5/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/5/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/5/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"5","name":"#5","status":"NOT_EXECUTED","startTimeMillis":1542310082128,"endTimeMillis":1542310082562,"durationMillis":434,"queueDurationMillis":200,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:27:50Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-4
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "824702"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-4
+    uid: 8a8c0e6f-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Triggered by Jenkins job at https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/
+  status:
+    completionTimestamp: 2018-11-15T19:28:02Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:28:02Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "5"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/4/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/4/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/4/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/4/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/4/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"4","name":"#4","status":"NOT_EXECUTED","startTimeMillis":1542310081651,"endTimeMillis":1542310082220,"durationMillis":569,"queueDurationMillis":16,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:28:01Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-5
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "824700"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-5
+    uid: 90ad5ada-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Triggered by Jenkins job at https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/
+  status:
+    completionTimestamp: 2018-11-15T19:28:02Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:28:01Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "6"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/6/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/6/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/6/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/6/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/6/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"6","name":"#6","status":"NOT_EXECUTED","startTimeMillis":1542310148861,"endTimeMillis":1542310149046,"durationMillis":185,"queueDurationMillis":17,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:29:08Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-6
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "824890"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-6
+    uid: b8f731f9-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T19:29:09Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:29:08Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "7"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/7/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/7/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/7/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/7/consoleText
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/7/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"7","name":"#7","status":"NOT_EXECUTED","startTimeMillis":1542310229116,"endTimeMillis":1542310230019,"durationMillis":903,"queueDurationMillis":97,"pauseDurationMillis":0,"stages":[]}'
+    creationTimestamp: 2018-11-15T19:30:28Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-7
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "825110"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-7
+    uid: e8c1421a-e90c-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T19:30:30Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Failed
+    startTimestamp: 2018-11-15T19:30:29Z
+- apiVersion: build.openshift.io/v1
+  kind: Build
+  metadata:
+    annotations:
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.number: "8"
+      openshift.io/jenkins-blueocean-log-url: /https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/blue/organizations/jenkins/abi-jenkins%2Fabi-jenkins-tasks-pipeline/detail/abi-jenkins-tasks-pipeline/8/
+      openshift.io/jenkins-build-uri: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/
+      openshift.io/jenkins-console-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/console
+      openshift.io/jenkins-log-url: https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/consoleText
+      openshift.io/jenkins-pending-input-actions-json: '[{"id":"92ad04ae8e465287d7e8a8a479aa54b1","proceedText":"Proceed","message":"Switch
+        Production?","inputs":[],"proceedUrl":"//job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/wfapi/inputSubmit?inputId=92ad04ae8e465287d7e8a8a479aa54b1","abortUrl":"//job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/input/92ad04ae8e465287d7e8a8a479aa54b1/abort","redirectApprovalUrl":"//job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/input/"}]'
+      openshift.io/jenkins-status-json: '{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/wfapi/describe"},"changesets":null,"pendingInputActions":null,"nextPendingInputAction":null,"artifacts":null},"id":"8","name":"#8","status":"SUCCESS","startTimeMillis":1542310426479,"endTimeMillis":1542310426479,"durationMillis":0,"queueDurationMillis":15,"pauseDurationMillis":0,"stages":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/6/wfapi/describe"},"log":null},"id":"6","name":"Checkout
+        Source","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310469969,"durationMillis":24359,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/7/wfapi/describe"},"log":null},"id":"7","name":"Git","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310470122,"durationMillis":24163,"pauseDurationMillis":0,"parentNodes":["6"]}],"allChildNodeIds":["7"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/14/wfapi/describe"},"log":null},"id":"14","name":"Build
+        war","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310494790,"durationMillis":76186,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/15/wfapi/describe"},"log":null},"id":"15","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Building
+        version 1.3","startTimeMillis":1542310495047,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["14"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/16/wfapi/describe"},"log":null},"id":"16","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"mvn
+        -s ./nexus_openshift_settings.xml clean package -DskipTests","startTimeMillis":1542310495059,"durationMillis":75871,"pauseDurationMillis":0,"parentNodes":["15"]}],"allChildNodeIds":["15","16"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/20/wfapi/describe"},"log":null},"id":"20","name":"Unit
+        Tests","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310571075,"durationMillis":128,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/21/wfapi/describe"},"log":null},"id":"21","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Running
+        Unit Tests","startTimeMillis":1542310571154,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["20"]}],"allChildNodeIds":["21"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/25/wfapi/describe"},"log":null},"id":"25","name":"Code
+        Analysis","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310571321,"durationMillis":94779,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/26/wfapi/describe"},"log":null},"id":"26","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Running
+        Code Analysis","startTimeMillis":1542310571446,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["25"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/27/wfapi/describe"},"log":null},"id":"27","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"mvn
+        -s ./nexus_openshift_settings.xml sonar:sonar -Dsonar.host.url=http://sonarqube-abi-sonarqube.apps.bd2b.openshift.opentlc.com/
+        -Dsonar.projectName=abi-jenkins-tasks-pipeline-0.0-0","startTimeMillis":1542310571458,"durationMillis":94602,"pauseDurationMillis":0,"parentNodes":["26"]}],"allChildNodeIds":["26","27"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/31/wfapi/describe"},"log":null},"id":"31","name":"Publish
+        to Nexus","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310666180,"durationMillis":49094,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/32/wfapi/describe"},"log":null},"id":"32","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Publish
+        to Nexus","startTimeMillis":1542310666286,"durationMillis":10,"pauseDurationMillis":0,"parentNodes":["31"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/33/wfapi/describe"},"log":null},"id":"33","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"mvn
+        -s ./nexus_openshift_settings.xml deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-abi-nexus.apps.bd2b.openshift.opentlc.com/repository/releases","startTimeMillis":1542310666296,"durationMillis":48936,"pauseDurationMillis":0,"parentNodes":["32"]}],"allChildNodeIds":["32","33"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/37/wfapi/describe"},"log":null},"id":"37","name":"Build
+        and Tag OpenShift Image","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310715463,"durationMillis":16511,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/38/wfapi/describe"},"log":null},"id":"38","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Building
+        OpenShift container image tasks:0.0-0","startTimeMillis":1542310715580,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["37"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/39/wfapi/describe"},"log":null},"id":"39","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        start-build tasks --follow --from-file=./target/openshift-tasks.war -n abi-tasks-dev","startTimeMillis":1542310715592,"durationMillis":16127,"pauseDurationMillis":0,"parentNodes":["38"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/40/wfapi/describe"},"log":null},"id":"40","name":"Tag
+        OpenShift Image","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310731719,"durationMillis":218,"pauseDurationMillis":0,"parentNodes":["39"]}],"allChildNodeIds":["38","39","40"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/44/wfapi/describe"},"log":null},"id":"44","name":"Deploy
+        to Dev","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310732060,"durationMillis":33454,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/45/wfapi/describe"},"log":null},"id":"45","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Deploying
+        container image to Development Project","startTimeMillis":1542310732162,"durationMillis":11,"pauseDurationMillis":0,"parentNodes":["44"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/46/wfapi/describe"},"log":null},"id":"46","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        set image dc/tasks tasks=docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0-0
+        -n abi-tasks-dev","startTimeMillis":1542310732173,"durationMillis":592,"pauseDurationMillis":0,"parentNodes":["45"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/47/wfapi/describe"},"log":null},"id":"47","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        delete configmap tasks-config -n abi-tasks-dev --ignore-not-found=true","startTimeMillis":1542310732765,"durationMillis":957,"pauseDurationMillis":0,"parentNodes":["46"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/48/wfapi/describe"},"log":null},"id":"48","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        create configmap tasks-config --from-file=./configuration/application-users.properties
+        --from-file=./configuration/application-roles.properties -n abi-tasks-dev","startTimeMillis":1542310733722,"durationMillis":555,"pauseDurationMillis":0,"parentNodes":["47"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/49/wfapi/describe"},"log":null},"id":"49","name":"Trigger
+        OpenShift Deployment","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310734277,"durationMillis":13160,"pauseDurationMillis":0,"parentNodes":["48"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/50/wfapi/describe"},"log":null},"id":"50","name":"Verify
+        OpenShift Deployment","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310747437,"durationMillis":376,"pauseDurationMillis":0,"parentNodes":["49"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/51/wfapi/describe"},"log":null},"id":"51","name":"Verify
+        OpenShift Service","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310747813,"durationMillis":17659,"pauseDurationMillis":0,"parentNodes":["50"]}],"allChildNodeIds":["45","46","47","48","49","50","51"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/55/wfapi/describe"},"log":null},"id":"55","name":"Integration
+        Tests","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310765601,"durationMillis":26702,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/56/wfapi/describe"},"log":null},"id":"56","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Running
+        Integration Tests","startTimeMillis":1542310765684,"durationMillis":11,"pauseDurationMillis":0,"parentNodes":["55"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/57/wfapi/describe"},"log":null},"id":"57","name":"Sleep","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"15","startTimeMillis":1542310765695,"durationMillis":15065,"pauseDurationMillis":0,"parentNodes":["56"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/58/wfapi/describe"},"log":null},"id":"58","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Creating
+        task","startTimeMillis":1542310780760,"durationMillis":10,"pauseDurationMillis":0,"parentNodes":["57"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/59/wfapi/describe"},"log":null},"id":"59","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"curl
+        -i -u ''tasks:redhat1'' -H ''Content-Length: 0'' -X POST http://tasks-abi-tasks-dev.apps.bd2b.openshift.opentlc.com/ws/tasks/integration_test_1","startTimeMillis":1542310780770,"durationMillis":10444,"pauseDurationMillis":0,"parentNodes":["58"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/60/wfapi/describe"},"log":null},"id":"60","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Retrieving
+        tasks","startTimeMillis":1542310791214,"durationMillis":11,"pauseDurationMillis":0,"parentNodes":["59"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/61/wfapi/describe"},"log":null},"id":"61","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"curl
+        -i -u ''tasks:redhat1'' -H ''Content-Length: 0'' -X GET http://tasks-abi-tasks-dev.apps.bd2b.openshift.opentlc.com/ws/tasks/1","startTimeMillis":1542310791225,"durationMillis":608,"pauseDurationMillis":0,"parentNodes":["60"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/62/wfapi/describe"},"log":null},"id":"62","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Deleting
+        tasks","startTimeMillis":1542310791833,"durationMillis":11,"pauseDurationMillis":0,"parentNodes":["61"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/63/wfapi/describe"},"log":null},"id":"63","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"curl
+        -i -u ''tasks:redhat1'' -H ''Content-Length: 0'' -X DELETE http://tasks-abi-tasks-dev.apps.bd2b.openshift.opentlc.com/ws/tasks/1","startTimeMillis":1542310791844,"durationMillis":420,"pauseDurationMillis":0,"parentNodes":["62"]}],"allChildNodeIds":["56","57","58","59","60","61","62","63"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/67/wfapi/describe"},"log":null},"id":"67","name":"Copy
+        Image to Nexus Docker Registry","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310792399,"durationMillis":1983,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/68/wfapi/describe"},"log":null},"id":"68","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Copy
+        image to Nexus Docker Registry","startTimeMillis":1542310792512,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["67"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/69/wfapi/describe"},"log":null},"id":"69","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"skopeo
+        copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:$(oc
+        whoami -t) --dest-creds admin:admin123 docker://docker-registry.default.svc.cluster.local:5000/abi-tasks-dev/tasks:0.0-0
+        docker://nexus-registry.abi-nexus.svc.cluster.local:5000/tasks:0.0-0","startTimeMillis":1542310792524,"durationMillis":1592,"pauseDurationMillis":0,"parentNodes":["68"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/70/wfapi/describe"},"log":null},"id":"70","name":"Tag
+        OpenShift Image","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310794116,"durationMillis":229,"pauseDurationMillis":0,"parentNodes":["69"]}],"allChildNodeIds":["68","69","70"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/74/wfapi/describe"},"log":null},"id":"74","name":"Blue/Green
+        Production Deployment","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310794470,"durationMillis":34293,"pauseDurationMillis":0,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/75/wfapi/describe"},"log":null},"id":"75","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310794549,"durationMillis":672,"pauseDurationMillis":0,"parentNodes":["74"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/76/wfapi/describe"},"log":null},"id":"76","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Active
+        Application:      tasks-green","startTimeMillis":1542310795221,"durationMillis":12,"pauseDurationMillis":0,"parentNodes":["75"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/77/wfapi/describe"},"log":null},"id":"77","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Destination
+        Application: tasks-blue","startTimeMillis":1542310795233,"durationMillis":19,"pauseDurationMillis":0,"parentNodes":["76"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/78/wfapi/describe"},"log":null},"id":"78","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        set image dc/tasks-blue tasks-blue=docker-registry.default.svc:5000/abi-tasks-dev/tasks:0.0
+        -n abi-tasks-prod","startTimeMillis":1542310795252,"durationMillis":601,"pauseDurationMillis":0,"parentNodes":["77"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/79/wfapi/describe"},"log":null},"id":"79","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        delete configmap tasks-blue-config -n abi-tasks-prod --ignore-not-found=true","startTimeMillis":1542310795853,"durationMillis":791,"pauseDurationMillis":0,"parentNodes":["78"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/80/wfapi/describe"},"log":null},"id":"80","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        create configmap tasks-blue-config --from-file=./configuration/application-users.properties
+        --from-file=./configuration/application-roles.properties -n abi-tasks-prod","startTimeMillis":1542310796644,"durationMillis":608,"pauseDurationMillis":0,"parentNodes":["79"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/81/wfapi/describe"},"log":null},"id":"81","name":"Trigger
+        OpenShift Deployment","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310797252,"durationMillis":23262,"pauseDurationMillis":0,"parentNodes":["80"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/82/wfapi/describe"},"log":null},"id":"82","name":"Verify
+        OpenShift Deployment","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310820514,"durationMillis":327,"pauseDurationMillis":0,"parentNodes":["81"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/83/wfapi/describe"},"log":null},"id":"83","name":"Verify
+        OpenShift Service","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310820841,"durationMillis":7877,"pauseDurationMillis":0,"parentNodes":["82"]}],"allChildNodeIds":["75","76","77","78","79","80","81","82","83"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/87/wfapi/describe"},"log":null},"id":"87","name":"Switch
+        over to new Version","execNode":"","status":"SUCCESS","error":null,"parameterDescription":null,"startTimeMillis":1542310828858,"durationMillis":1622569,"pauseDurationMillis":1621451,"stageFlowNodes":[{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/88/wfapi/describe"},"log":null},"id":"88","name":"Wait
+        for interactive input","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Switch
+        Production?","startTimeMillis":1542310828935,"durationMillis":1621580,"pauseDurationMillis":1621451,"parentNodes":["87"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/89/wfapi/describe"},"log":null},"id":"89","name":"Print
+        Message","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"Switching
+        Production application to tasks-blue.","startTimeMillis":1542312450515,"durationMillis":13,"pauseDurationMillis":0,"parentNodes":["88"]},{"_links":{"self":{"href":"https://jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com/job/abi-jenkins/job/abi-jenkins-tasks-pipeline/8/execution/node/90/wfapi/describe"},"log":null},"id":"90","name":"Shell
+        Script","execNode":"","status":"SUCCESS","error":null,"parameterDescription":"oc
+        patch route tasks -n abi-tasks-prod -p ''{\"spec\":{\"to\":{\"name\":\"tasks-blue\"}}}''","startTimeMillis":1542312450528,"durationMillis":857,"pauseDurationMillis":0,"parentNodes":["89"]}],"allChildNodeIds":["88","89","90"]}]}'
+    creationTimestamp: 2018-11-15T19:33:46Z
+    labels:
+      buildconfig: tasks-pipeline
+      openshift.io/build-config.name: tasks-pipeline
+      openshift.io/build.start-policy: Serial
+    name: tasks-pipeline-8
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: BuildConfig
+      name: tasks-pipeline
+      uid: 736af5ea-e90b-11e8-976c-16eaa0d97fe8
+    resourceVersion: "833158"
+    selfLink: /apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/tasks-pipeline-8
+    uid: 5e72e9ba-e90d-11e8-976c-16eaa0d97fe8
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    serviceAccount: builder
+    source:
+      git:
+        ref: master
+        uri: http://gogs-abi-gogs.apps.bd2b.openshift.opentlc.com/CICDLabs/openshift-tasks-private
+      sourceSecret:
+        name: gogs1-secret
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+      type: JenkinsPipeline
+    triggeredBy:
+    - message: Manually triggered
+  status:
+    completionTimestamp: 2018-11-15T20:07:31Z
+    config:
+      kind: BuildConfig
+      name: tasks-pipeline
+      namespace: abi-jenkins
+    output: {}
+    phase: Complete
+    startTimestamp: 2018-11-15T19:33:46Z
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+    creationTimestamp: 2018-11-13T20:36:20Z
+    generation: 1
+    labels:
+      build: jenkins-agent-appdev
+    name: jenkins-agent-appdev
+    namespace: abi-jenkins
+    resourceVersion: "365632"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-jenkins/imagestreams/jenkins-agent-appdev
+    uid: c78a6a39-e783-11e8-8cf3-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev
+    tags:
+    - items:
+      - created: 2018-11-13T20:38:06Z
+        dockerImageReference: docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev@sha256:372529c56a867246f83699c43d33e248fcce01394d94d3a526652e4b88dd040e
+        generation: 1
+        image: sha256:372529c56a867246f83699c43d33e248fcce01394d94d3a526652e4b88dd040e
+      tag: latest
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+      openshift.io/image.dockerRepositoryCheck: 2018-11-13T20:36:21Z
+    creationTimestamp: 2018-11-13T20:36:20Z
+    generation: 2
+    labels:
+      build: jenkins-agent-appdev
+    name: jenkins-agent-maven-35-centos7
+    namespace: abi-jenkins
+    resourceVersion: "364890"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-jenkins/imagestreams/jenkins-agent-maven-35-centos7
+    uid: c78897ed-e783-11e8-8cf3-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11
+      from:
+        kind: DockerImage
+        name: docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11
+      generation: 2
+      importPolicy: {}
+      name: v3.11
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-maven-35-centos7
+    tags:
+    - items:
+      - created: 2018-11-13T20:36:21Z
+        dockerImageReference: docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723
+        generation: 2
+        image: sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723
+      tag: v3.11
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      haproxy.router.openshift.io/timeout: 4m
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/host.generated: "true"
+      template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
+    creationTimestamp: 2018-11-13T20:28:53Z
+    labels:
+      app: jenkins-persistent
+      template: jenkins-persistent-template
+    name: jenkins
+    namespace: abi-jenkins
+    resourceVersion: "362747"
+    selfLink: /apis/route.openshift.io/v1/namespaces/abi-jenkins/routes/jenkins
+    uid: bcf0dcab-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    host: jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: jenkins
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2018-11-13T20:28:53Z
+        status: "True"
+        type: Admitted
+      host: jenkins-abi-jenkins.apps.bd2b.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu request for container
+        jenkins; cpu limit for container jenkins'
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: jenkins
+      openshift.io/deployment.name: jenkins-1
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-13T20:28:57Z
+    generateName: jenkins-1-
+    labels:
+      deployment: jenkins-1
+      deploymentconfig: jenkins
+      name: jenkins
+    name: jenkins-1-g74kv
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: jenkins-1
+      uid: bd8f0090-e782-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "976365"
+    selfLink: /api/v1/namespaces/abi-jenkins/pods/jenkins-1-g74kv
+    uid: bf6262ab-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    containers:
+    - env:
+      - name: OPENSHIFT_ENABLE_OAUTH
+        value: "true"
+      - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
+        value: "true"
+      - name: DISABLE_ADMINISTRATIVE_MONITORS
+        value: "true"
+      - name: KUBERNETES_MASTER
+        value: https://kubernetes.default:443
+      - name: KUBERNETES_TRUST_CERTIFICATES
+        value: "true"
+      - name: JENKINS_SERVICE_NAME
+        value: jenkins
+      - name: JNLP_SERVICE_NAME
+        value: jenkins-jnlp
+      - name: ENABLE_FATAL_ERROR_LOG_FILE
+        value: "false"
+      image: docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 2
+        httpGet:
+          path: /login
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 420
+        periodSeconds: 360
+        successThreshold: 1
+        timeoutSeconds: 240
+      name: jenkins
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /login
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 240
+      resources:
+        limits:
+          cpu: 500m
+          memory: 2Gi
+        requests:
+          cpu: 50m
+          memory: 2Gi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        privileged: false
+        runAsUser: 1002660000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/lib/jenkins
+        name: jenkins-data
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: jenkins-token-tfqn9
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: jenkins-dockercfg-zmwbf
+    nodeName: node3.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1002660000
+      seLinuxOptions:
+        level: s0:c52,c4
+    serviceAccount: jenkins
+    serviceAccountName: jenkins
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - name: jenkins-data
+      persistentVolumeClaim:
+        claimName: jenkins
+    - name: jenkins-token-tfqn9
+      secret:
+        defaultMode: 420
+        secretName: jenkins-token-tfqn9
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T20:28:57Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:55:19Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T20:28:57Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://cb7d0fc0fde4d324a2e49cf1d8d0b123811908406bb29724c1c2773466e12f0c
+      image: sha256:68527353adf6d0eca49ae4d87dda16760efedeabe7363f3aa9e4511addb25a43
+      imageID: docker-pullable://docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978
+      lastState:
+        terminated:
+          containerID: docker://11e390f1ac5dd05cafbb6711cfa3a4398f7a73af4757923e2c96c8fda9139c2e
+          exitCode: 255
+          finishedAt: 2018-11-16T12:48:21Z
+          reason: Error
+          startedAt: 2018-11-15T12:24:29Z
+      name: jenkins
+      ready: true
+      restartCount: 4
+      state:
+        running:
+          startedAt: 2018-11-16T12:49:07Z
+    hostIP: 192.199.0.80
+    phase: Running
+    podIP: 10.1.12.174
+    qosClass: Burstable
+    startTime: 2018-11-13T20:28:57Z
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu, memory request for
+        container docker-build; cpu, memory limit for container docker-build; cpu,
+        memory request for init container manage-dockerfile; cpu, memory limit for
+        init container manage-dockerfile'
+      openshift.io/build.name: jenkins-agent-appdev-1
+      openshift.io/scc: privileged
+    creationTimestamp: 2018-11-13T20:36:21Z
+    labels:
+      openshift.io/build.name: jenkins-agent-appdev-1
+    name: jenkins-agent-appdev-1-build
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: build.openshift.io/v1
+      controller: true
+      kind: Build
+      name: jenkins-agent-appdev-1
+      uid: c7a39336-e783-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "365639"
+    selfLink: /api/v1/namespaces/abi-jenkins/pods/jenkins-agent-appdev-1-build
+    uid: c7a6058e-e783-11e8-8cf3-16eaa0d97fe8
+  spec:
+    containers:
+    - args:
+      - --loglevel=0
+      command:
+      - openshift-docker-build
+      env:
+      - name: BUILD
+        value: |
+          {"kind":"Build","apiVersion":"build.openshift.io/v1","metadata":{"name":"jenkins-agent-appdev-1","namespace":"abi-jenkins","selfLink":"/apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/jenkins-agent-appdev-1","uid":"c7a39336-e783-11e8-8cf3-16eaa0d97fe8","resourceVersion":"364894","creationTimestamp":"2018-11-13T20:36:21Z","labels":{"build":"jenkins-agent-appdev","buildconfig":"jenkins-agent-appdev","openshift.io/build-config.name":"jenkins-agent-appdev","openshift.io/build.start-policy":"Serial"},"annotations":{"openshift.io/build-config.name":"jenkins-agent-appdev","openshift.io/build.number":"1"},"ownerReferences":[{"apiVersion":"build.openshift.io/v1","kind":"BuildConfig","name":"jenkins-agent-appdev","uid":"c78ba8d0-e783-11e8-8cf3-16eaa0d97fe8","controller":true}]},"spec":{"serviceAccount":"builder","source":{"type":"Dockerfile","dockerfile":"FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11\n\n      USER root\nRUN yum -y install skopeo \u0026\u0026 yum clean all\n\n      USER 1001"},"strategy":{"type":"Docker","dockerStrategy":{"from":{"kind":"DockerImage","name":"docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723"}}},"output":{"to":{"kind":"DockerImage","name":"docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev:latest"},"pushSecret":{"name":"builder-dockercfg-5bbfb"}},"resources":{},"postCommit":{},"nodeSelector":null,"triggeredBy":[{"message":"Image change","imageChangeBuild":{"imageID":"docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723","fromRef":{"kind":"ImageStreamTag","name":"jenkins-agent-maven-35-centos7:v3.11"}}}]},"status":{"phase":"New","outputDockerImageReference":"docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev:latest","config":{"kind":"BuildConfig","namespace":"abi-jenkins","name":"jenkins-agent-appdev"},"output":{}}}
+      - name: PUSH_DOCKERCFG_PATH
+        value: /var/run/secrets/openshift.io/push
+      image: registry.redhat.io/openshift3/ose-docker-builder:v3.11.16
+      imagePullPolicy: IfNotPresent
+      name: docker-build
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1536Mi
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      securityContext:
+        privileged: true
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: FallbackToLogsOnError
+      volumeMounts:
+      - mountPath: /tmp/build
+        name: buildworkdir
+      - mountPath: /var/run/docker.sock
+        name: docker-socket
+      - mountPath: /var/run/crio/crio.sock
+        name: crio-socket
+      - mountPath: /var/run/secrets/openshift.io/push
+        name: builder-dockercfg-5bbfb-push
+        readOnly: true
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: builder-token-fg8f4
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: builder-dockercfg-5bbfb
+    initContainers:
+    - args:
+      - --loglevel=0
+      command:
+      - openshift-manage-dockerfile
+      env:
+      - name: BUILD
+        value: |
+          {"kind":"Build","apiVersion":"build.openshift.io/v1","metadata":{"name":"jenkins-agent-appdev-1","namespace":"abi-jenkins","selfLink":"/apis/build.openshift.io/v1/namespaces/abi-jenkins/builds/jenkins-agent-appdev-1","uid":"c7a39336-e783-11e8-8cf3-16eaa0d97fe8","resourceVersion":"364894","creationTimestamp":"2018-11-13T20:36:21Z","labels":{"build":"jenkins-agent-appdev","buildconfig":"jenkins-agent-appdev","openshift.io/build-config.name":"jenkins-agent-appdev","openshift.io/build.start-policy":"Serial"},"annotations":{"openshift.io/build-config.name":"jenkins-agent-appdev","openshift.io/build.number":"1"},"ownerReferences":[{"apiVersion":"build.openshift.io/v1","kind":"BuildConfig","name":"jenkins-agent-appdev","uid":"c78ba8d0-e783-11e8-8cf3-16eaa0d97fe8","controller":true}]},"spec":{"serviceAccount":"builder","source":{"type":"Dockerfile","dockerfile":"FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11\n\n      USER root\nRUN yum -y install skopeo \u0026\u0026 yum clean all\n\n      USER 1001"},"strategy":{"type":"Docker","dockerStrategy":{"from":{"kind":"DockerImage","name":"docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723"}}},"output":{"to":{"kind":"DockerImage","name":"docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev:latest"},"pushSecret":{"name":"builder-dockercfg-5bbfb"}},"resources":{},"postCommit":{},"nodeSelector":null,"triggeredBy":[{"message":"Image change","imageChangeBuild":{"imageID":"docker.io/openshift/jenkins-agent-maven-35-centos7@sha256:18297fa1539fca8a8726323c1a7a0c8136f341d98da62d3566039843b9e87723","fromRef":{"kind":"ImageStreamTag","name":"jenkins-agent-maven-35-centos7:v3.11"}}}]},"status":{"phase":"New","outputDockerImageReference":"docker-registry.default.svc:5000/abi-jenkins/jenkins-agent-appdev:latest","config":{"kind":"BuildConfig","namespace":"abi-jenkins","name":"jenkins-agent-appdev"},"output":{}}}
+      image: registry.redhat.io/openshift3/ose-docker-builder:v3.11.16
+      imagePullPolicy: IfNotPresent
+      name: manage-dockerfile
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1536Mi
+        requests:
+          cpu: 50m
+          memory: 256Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: FallbackToLogsOnError
+      volumeMounts:
+      - mountPath: /tmp/build
+        name: buildworkdir
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: builder-token-fg8f4
+        readOnly: true
+    nodeName: node5.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Never
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: builder
+    serviceAccountName: builder
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - emptyDir: {}
+      name: buildworkdir
+    - hostPath:
+        path: /var/run/docker.sock
+        type: ""
+      name: docker-socket
+    - hostPath:
+        path: /var/run/crio/crio.sock
+        type: ""
+      name: crio-socket
+    - name: builder-dockercfg-5bbfb-push
+      secret:
+        defaultMode: 384
+        secretName: builder-dockercfg-5bbfb
+    - name: builder-token-fg8f4
+      secret:
+        defaultMode: 420
+        secretName: builder-token-fg8f4
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T20:36:25Z
+      reason: PodCompleted
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T20:38:08Z
+      reason: PodCompleted
+      status: "False"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      reason: PodCompleted
+      status: "False"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T20:36:21Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://71ad65872ca7097f82ece2f19d36ca5d0cc52aded6b6bc7d164c005dea018a28
+      image: registry.redhat.io/openshift3/ose-docker-builder:v3.11.16
+      imageID: docker-pullable://registry.redhat.io/openshift3/ose-docker-builder@sha256:13bc494812411a29679b7084c75791fbab85d76eac68ed3f6894e893f50b6772
+      lastState: {}
+      name: docker-build
+      ready: false
+      restartCount: 0
+      state:
+        terminated:
+          containerID: docker://71ad65872ca7097f82ece2f19d36ca5d0cc52aded6b6bc7d164c005dea018a28
+          exitCode: 0
+          finishedAt: 2018-11-13T20:38:07Z
+          reason: Completed
+          startedAt: 2018-11-13T20:36:25Z
+    hostIP: 192.199.0.234
+    initContainerStatuses:
+    - containerID: docker://5f70faf0f1ab9d33de6e1ca7c924c969c634e4c2f5b80420f57454b9a80ce70a
+      image: registry.redhat.io/openshift3/ose-docker-builder:v3.11.16
+      imageID: docker-pullable://registry.redhat.io/openshift3/ose-docker-builder@sha256:13bc494812411a29679b7084c75791fbab85d76eac68ed3f6894e893f50b6772
+      lastState: {}
+      name: manage-dockerfile
+      ready: true
+      restartCount: 0
+      state:
+        terminated:
+          containerID: docker://5f70faf0f1ab9d33de6e1ca7c924c969c634e4c2f5b80420f57454b9a80ce70a
+          exitCode: 0
+          finishedAt: 2018-11-13T20:36:24Z
+          reason: Completed
+          startedAt: 2018-11-13T20:36:24Z
+    phase: Succeeded
+    podIP: 10.1.2.176
+    qosClass: Burstable
+    startTime: 2018-11-13T20:36:21Z
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-13 20:34:49 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 20:28:54 +0000 UTC
+      openshift.io/deployer-pod.name: jenkins-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: jenkins
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"jenkins","namespace":"abi-jenkins","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-jenkins/deploymentconfigs/jenkins","uid":"bcf3cd07-e782-11e8-8cf3-16eaa0d97fe8","resourceVersion":"362773","generation":2,"creationTimestamp":"2018-11-13T20:28:53Z","labels":{"app":"jenkins-persistent","template":"jenkins-persistent-template"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp","template.alpha.openshift.io/wait-for-ready":"true"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["jenkins"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"jenkins:2"},"lastTriggeredImage":"docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978"}},{"type":"ConfigChange"}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"name":"jenkins"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"jenkins"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"jenkins-data","persistentVolumeClaim":{"claimName":"jenkins"}}],"containers":[{"name":"jenkins","image":"docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978","env":[{"name":"OPENSHIFT_ENABLE_OAUTH","value":"true"},{"name":"OPENSHIFT_ENABLE_REDIRECT_PROMPT","value":"true"},{"name":"DISABLE_ADMINISTRATIVE_MONITORS","value":"true"},{"name":"KUBERNETES_MASTER","value":"https://kubernetes.default:443"},{"name":"KUBERNETES_TRUST_CERTIFICATES","value":"true"},{"name":"JENKINS_SERVICE_NAME","value":"jenkins"},{"name":"JNLP_SERVICE_NAME","value":"jenkins-jnlp"},{"name":"ENABLE_FATAL_ERROR_LOG_FILE","value":"false"}],"resources":{"limits":{"memory":"2Gi"}},"volumeMounts":[{"name":"jenkins-data","mountPath":"/var/lib/jenkins"}],"livenessProbe":{"httpGet":{"path":"/login","port":8080,"scheme":"HTTP"},"initialDelaySeconds":420,"timeoutSeconds":240,"periodSeconds":360,"successThreshold":1,"failureThreshold":2},"readinessProbe":{"httpGet":{"path":"/login","port":8080,"scheme":"HTTP"},"initialDelaySeconds":3,"timeoutSeconds":240,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","serviceAccountName":"jenkins","serviceAccount":"jenkins","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-13T20:28:53Z","lastTransitionTime":"2018-11-13T20:28:53Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: 2018-11-13T20:28:54Z
+    generation: 2
+    labels:
+      app: jenkins-persistent
+      openshift.io/deployment-config.name: jenkins
+      template: jenkins-persistent-template
+    name: jenkins-1
+    namespace: abi-jenkins
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: jenkins
+      uid: bcf3cd07-e782-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "976368"
+    selfLink: /api/v1/namespaces/abi-jenkins/replicationcontrollers/jenkins-1
+    uid: bd8f0090-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      deployment: jenkins-1
+      deploymentconfig: jenkins
+      name: jenkins
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: jenkins
+          openshift.io/deployment.name: jenkins-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          deployment: jenkins-1
+          deploymentconfig: jenkins
+          name: jenkins
+      spec:
+        containers:
+        - env:
+          - name: OPENSHIFT_ENABLE_OAUTH
+            value: "true"
+          - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
+            value: "true"
+          - name: DISABLE_ADMINISTRATIVE_MONITORS
+            value: "true"
+          - name: KUBERNETES_MASTER
+            value: https://kubernetes.default:443
+          - name: KUBERNETES_TRUST_CERTIFICATES
+            value: "true"
+          - name: JENKINS_SERVICE_NAME
+            value: jenkins
+          - name: JNLP_SERVICE_NAME
+            value: jenkins-jnlp
+          - name: ENABLE_FATAL_ERROR_LOG_FILE
+            value: "false"
+          image: docker-registry.default.svc:5000/openshift/jenkins@sha256:bd8ae92065ee1c7a58ce49ab9bf16ce2113920a1684eda88a4cf80cdac96e978
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 420
+            periodSeconds: 360
+            successThreshold: 1
+            timeoutSeconds: 240
+          name: jenkins
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 240
+          resources:
+            limits:
+              memory: 2Gi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/jenkins
+            name: jenkins-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: jenkins
+        serviceAccountName: jenkins
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: jenkins-data
+          persistentVolumeClaim:
+            claimName: jenkins
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      service.alpha.openshift.io/dependencies: '[{"name": "jenkins-jnlp", "namespace":
+        "", "kind": "Service"}]'
+      service.openshift.io/infrastructure: "true"
+    creationTimestamp: 2018-11-13T20:28:53Z
+    labels:
+      app: jenkins-persistent
+      template: jenkins-persistent-template
+    name: jenkins
+    namespace: abi-jenkins
+    resourceVersion: "362768"
+    selfLink: /api/v1/namespaces/abi-jenkins/services/jenkins
+    uid: bcfe4159-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.245.162
+    ports:
+    - name: web
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      name: jenkins
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-13T20:28:53Z
+    labels:
+      app: jenkins-persistent
+      template: jenkins-persistent-template
+    name: jenkins-jnlp
+    namespace: abi-jenkins
+    resourceVersion: "362765"
+    selfLink: /api/v1/namespaces/abi-jenkins/services/jenkins-jnlp
+    uid: bcfce487-e782-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.62.244
+    ports:
+    - name: agent
+      port: 50000
+      protocol: TCP
+      targetPort: 50000
+    selector:
+      name: jenkins
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

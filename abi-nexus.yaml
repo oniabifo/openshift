@@ -1,0 +1,611 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-13T16:43:49Z
+    generation: 9
+    labels:
+      app: nexus3
+    name: nexus3
+    namespace: abi-nexus
+    resourceVersion: "975473"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/abi-nexus/deploymentconfigs/nexus3
+    uid: 4c132765-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: nexus3
+      deploymentconfig: nexus3
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: nexus3
+          deploymentconfig: nexus3
+      spec:
+        containers:
+        - image: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+              - echo
+              - ok
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: nexus3
+          ports:
+          - containerPort: 8081
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /nexus-data
+            name: nexus3-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: nexus3-volume-1
+          persistentVolumeClaim:
+            claimName: nexus-pvc
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - nexus3
+        from:
+          kind: ImageStreamTag
+          name: nexus3:latest
+          namespace: abi-nexus
+        lastTriggeredImage: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+      type: ImageChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: 2018-11-13T16:46:38Z
+      lastUpdateTime: 2018-11-13T16:48:18Z
+      message: replication controller "nexus3-2" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: 2018-11-16T12:52:37Z
+      lastUpdateTime: 2018-11-16T12:52:37Z
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 2
+    observedGeneration: 9
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/image.dockerRepositoryCheck: 2018-11-13T16:43:50Z
+    creationTimestamp: 2018-11-13T16:43:49Z
+    generation: 2
+    labels:
+      app: nexus3
+    name: nexus3
+    namespace: abi-nexus
+    resourceVersion: "311799"
+    selfLink: /apis/image.openshift.io/v1/namespaces/abi-nexus/imagestreams/nexus3
+    uid: 4c11d3f0-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: sonatype/nexus3:latest
+      from:
+        kind: DockerImage
+        name: sonatype/nexus3:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: docker-registry.default.svc:5000/abi-nexus/nexus3
+    tags:
+    - items:
+      - created: 2018-11-13T16:43:50Z
+        dockerImageReference: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+        generation: 2
+        image: sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+      tag: latest
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      console.alpha.openshift.io/overview-app-route: "false"
+      openshift.io/host.generated: "true"
+    creationTimestamp: 2018-11-13T16:55:07Z
+    labels:
+      app: nexus3
+    name: nexus-registry
+    namespace: abi-nexus
+    resourceVersion: "326316"
+    selfLink: /apis/route.openshift.io/v1/namespaces/abi-nexus/routes/nexus-registry
+    uid: e02535a9-e764-11e8-8cf3-16eaa0d97fe8
+  spec:
+    host: nexus-registry-abi-nexus.apps.bd2b.openshift.opentlc.com
+    port:
+      targetPort: 5000
+    tls:
+      termination: edge
+    to:
+      kind: Service
+      name: nexus-registry
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2018-11-13T16:55:07Z
+        status: "True"
+        type: Admitted
+      host: nexus-registry-abi-nexus.apps.bd2b.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      console.alpha.openshift.io/overview-app-route: "true"
+      openshift.io/host.generated: "true"
+    creationTimestamp: 2018-11-13T16:44:04Z
+    labels:
+      app: nexus3
+    name: nexus3
+    namespace: abi-nexus
+    resourceVersion: "326309"
+    selfLink: /apis/route.openshift.io/v1/namespaces/abi-nexus/routes/nexus3
+    uid: 54aef00a-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    host: nexus3-abi-nexus.apps.bd2b.openshift.opentlc.com
+    port:
+      targetPort: 8081-tcp
+    to:
+      kind: Service
+      name: nexus3
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2018-11-13T16:44:04Z
+        status: "True"
+        type: Admitted
+      host: nexus3-abi-nexus.apps.bd2b.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: nexus3
+      openshift.io/deployment.name: nexus3-2
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: 2018-11-13T16:46:38Z
+    generateName: nexus3-2-
+    labels:
+      app: nexus3
+      deployment: nexus3-2
+      deploymentconfig: nexus3
+    name: nexus3-2-hsr24
+    namespace: abi-nexus
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: nexus3-2
+      uid: a1915528-e763-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "975469"
+    selfLink: /api/v1/namespaces/abi-nexus/pods/nexus3-2-hsr24
+    uid: b0696578-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    containers:
+    - image: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+      imagePullPolicy: Always
+      livenessProbe:
+        exec:
+          command:
+          - echo
+          - ok
+        failureThreshold: 3
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: nexus3
+      ports:
+      - containerPort: 8081
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 8081
+          scheme: HTTP
+        initialDelaySeconds: 60
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: "2"
+          memory: 2Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+        runAsUser: 1001070000
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /nexus-data
+        name: nexus3-volume-1
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-26jm9
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-582ks
+    nodeName: node1.bd2b.internal
+    nodeSelector:
+      node-role.kubernetes.io/compute: "true"
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1001070000
+      seLinuxOptions:
+        level: s0:c33,c7
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    volumes:
+    - name: nexus3-volume-1
+      persistentVolumeClaim:
+        claimName: nexus-pvc
+    - name: default-token-26jm9
+      secret:
+        defaultMode: 420
+        secretName: default-token-26jm9
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T16:46:38Z
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-16T12:52:37Z
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: null
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: 2018-11-13T16:46:38Z
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://72f055501a439a28a1b48ce6614628173aea2509ab372175d6b619fd16b05109
+      image: docker.io/sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+      imageID: docker-pullable://docker.io/sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+      lastState:
+        terminated:
+          containerID: docker://7f4c053dc2252141f09c10c55e614445882a5d2855f30d2c4bd8c2ff9378bf61
+          exitCode: 143
+          finishedAt: 2018-11-16T12:49:25Z
+          reason: Error
+          startedAt: 2018-11-16T12:49:21Z
+      name: nexus3
+      ready: true
+      restartCount: 4
+      state:
+        running:
+          startedAt: 2018-11-16T12:49:30Z
+    hostIP: 192.199.0.99
+    phase: Running
+    podIP: 10.1.10.155
+    qosClass: Burstable
+    startTime: 2018-11-13T16:46:38Z
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-13 16:44:06 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 16:43:50 +0000 UTC
+      openshift.io/deployer-pod.name: nexus3-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: nexus3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"nexus3","namespace":"abi-nexus","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-nexus/deploymentconfigs/nexus3","uid":"4c132765-e763-11e8-8cf3-16eaa0d97fe8","resourceVersion":"311801","generation":2,"creationTimestamp":"2018-11-13T16:43:49Z","labels":{"app":"nexus3"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["nexus3"],"from":{"kind":"ImageStreamTag","namespace":"abi-nexus","name":"nexus3:latest"},"lastTriggeredImage":"sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071"}}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"nexus3","deploymentconfig":"nexus3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"nexus3","deploymentconfig":"nexus3"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"nexus3-volume-1","emptyDir":{}}],"containers":[{"name":"nexus3","image":"sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071","ports":[{"containerPort":8081,"protocol":"TCP"}],"resources":{},"volumeMounts":[{"name":"nexus3-volume-1","mountPath":"/nexus-data"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2018-11-13T16:43:49Z","lastTransitionTime":"2018-11-13T16:43:49Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: 2018-11-13T16:43:50Z
+    generation: 3
+    labels:
+      app: nexus3
+      openshift.io/deployment-config.name: nexus3
+    name: nexus3-1
+    namespace: abi-nexus
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: nexus3
+      uid: 4c132765-e763-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "312499"
+    selfLink: /api/v1/namespaces/abi-nexus/replicationcontrollers/nexus3-1
+    uid: 4c278ce3-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 0
+    selector:
+      app: nexus3
+      deployment: nexus3-1
+      deploymentconfig: nexus3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: nexus3
+          openshift.io/deployment.name: nexus3-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: nexus3
+          deployment: nexus3-1
+          deploymentconfig: nexus3
+      spec:
+        containers:
+        - image: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+          imagePullPolicy: Always
+          name: nexus3
+          ports:
+          - containerPort: 8081
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /nexus-data
+            name: nexus3-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: nexus3-volume-1
+  status:
+    observedGeneration: 3
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.completed-at: 2018-11-13 16:48:18 +0000 UTC
+      openshift.io/deployer-pod.created-at: 2018-11-13 16:46:13 +0000 UTC
+      openshift.io/deployer-pod.name: nexus3-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: nexus3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"apps.openshift.io/v1","metadata":{"name":"nexus3","namespace":"abi-nexus","selfLink":"/apis/apps.openshift.io/v1/namespaces/abi-nexus/deploymentconfigs/nexus3","uid":"4c132765-e763-11e8-8cf3-16eaa0d97fe8","resourceVersion":"312465","generation":9,"creationTimestamp":"2018-11-13T16:43:49Z","labels":{"app":"nexus3"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["nexus3"],"from":{"kind":"ImageStreamTag","namespace":"abi-nexus","name":"nexus3:latest"},"lastTriggeredImage":"sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071"}}],"replicas":1,"revisionHistoryLimit":10,"test":false,"selector":{"app":"nexus3","deploymentconfig":"nexus3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"nexus3","deploymentconfig":"nexus3"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"nexus3-volume-1","persistentVolumeClaim":{"claimName":"nexus-pvc"}}],"containers":[{"name":"nexus3","image":"sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071","ports":[{"containerPort":8081,"protocol":"TCP"}],"resources":{"limits":{"cpu":"2","memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"volumeMounts":[{"name":"nexus3-volume-1","mountPath":"/nexus-data"}],"livenessProbe":{"exec":{"command":["echo","ok"]},"initialDelaySeconds":60,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"httpGet":{"path":"/","port":8081,"scheme":"HTTP"},"initialDelaySeconds":60,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":8,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2018-11-13T16:44:06Z","lastTransitionTime":"2018-11-13T16:44:06Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2018-11-13T16:44:06Z","lastTransitionTime":"2018-11-13T16:43:52Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"nexus3-1\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: 2018-11-13T16:46:13Z
+    generation: 2
+    labels:
+      app: nexus3
+      openshift.io/deployment-config.name: nexus3
+    name: nexus3-2
+    namespace: abi-nexus
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: nexus3
+      uid: 4c132765-e763-11e8-8cf3-16eaa0d97fe8
+    resourceVersion: "975472"
+    selfLink: /api/v1/namespaces/abi-nexus/replicationcontrollers/nexus3-2
+    uid: a1915528-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    replicas: 1
+    selector:
+      app: nexus3
+      deployment: nexus3-2
+      deploymentconfig: nexus3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: nexus3
+          openshift.io/deployment.name: nexus3-2
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: nexus3
+          deployment: nexus3-2
+          deploymentconfig: nexus3
+      spec:
+        containers:
+        - image: sonatype/nexus3@sha256:262f9f2b5e61ebbee068a23acfdad8283d8b9285b9f99a8b38bb8c65b2a13071
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+              - echo
+              - ok
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: nexus3
+          ports:
+          - containerPort: 8081
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /nexus-data
+            name: nexus3-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: nexus3-volume-1
+          persistentVolumeClaim:
+            claimName: nexus-pvc
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: 2018-11-13T16:55:05Z
+    labels:
+      app: nexus3
+    name: nexus-registry
+    namespace: abi-nexus
+    resourceVersion: "314496"
+    selfLink: /api/v1/namespaces/abi-nexus/services/nexus-registry
+    uid: df101088-e764-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.5.45
+    ports:
+    - port: 5000
+      protocol: TCP
+      targetPort: 5000
+    selector:
+      app: nexus3
+      deploymentconfig: nexus3
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2018-11-13T16:43:49Z
+    labels:
+      app: nexus3
+    name: nexus3
+    namespace: abi-nexus
+    resourceVersion: "311797"
+    selfLink: /api/v1/namespaces/abi-nexus/services/nexus3
+    uid: 4c1479dd-e763-11e8-8cf3-16eaa0d97fe8
+  spec:
+    clusterIP: 172.30.218.14
+    ports:
+    - name: 8081-tcp
+      port: 8081
+      protocol: TCP
+      targetPort: 8081
+    selector:
+      app: nexus3
+      deploymentconfig: nexus3
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

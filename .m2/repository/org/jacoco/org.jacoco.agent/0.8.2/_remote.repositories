@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Nov 15 15:33:45 UTC 2018
+org.jacoco.agent-0.8.2-runtime.jar>Nexus=
+org.jacoco.agent-0.8.2.pom>Nexus=
+org.jacoco.agent-0.8.2.pom>central=
+org.jacoco.agent-0.8.2-runtime.jar>central=

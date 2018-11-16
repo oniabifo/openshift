@@ -1,0 +1,6 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Nov 15 15:33:22 UTC 2018
+mockito-core-2.23.0.jar>central=
+mockito-core-2.23.0.pom>central=
+mockito-core-2.23.0.pom>Nexus=
+mockito-core-2.23.0.jar>Nexus=
